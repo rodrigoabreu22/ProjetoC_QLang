@@ -1,0 +1,10 @@
+Name: Ricardo
+ID: 
+--------------------
+Question 1: Complete o seguinte código.
+
+Answer: n % 2 = 0, else
+Solution: n % 2 = 0, else
+Grade: 100.0%
+--------------------
+Final Grade: 50.0%

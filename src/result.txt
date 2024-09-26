@@ -1,0 +1,29 @@
+Name: Ricardo
+ID: 1
+--------------------
+Question: Q1
+Answer: 
+Algorithm.Code2:
+	Answer:
+		n % 2 = 0; else
+Algorithm.Code2:
+	Answer:
+		n % 2 = 0; else
+Algorithm.Code2:
+	Answer:
+		n % 2 = 0; else
+
+Solution: 
+Algorithm.Code2:
+	Solution:
+		n % 2 = 0; else
+Algorithm.Code2:
+	Solution:
+		n % 2 = 0; else
+Algorithm.Code2:
+	Solution:
+		n % 2 = 0; else
+
+Grade: 100.0%
+--------------------
+Final Grade: 100.0%

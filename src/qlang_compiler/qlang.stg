@@ -1,0 +1,250 @@
+// dictionaries: allows simple translations
+
+booleanValue ::= [
+   "true":"true",
+   "false":"false",
+   default:"null"
+]
+
+typeValue ::= [
+   "integer":"Integer",
+   "boolean":"boolean",
+   "text":"String",
+   "fraction":"Fraction",
+   "code":"Code",
+   "question":"QuestionInterface",
+   default:"null"
+]
+
+questionType ::= [
+   "hole":"HoleQuestion",
+   "code-open":"CodeOpenQuestion",
+   "open":"OpenQuestion",
+   "code-hole":"CodeHoleQuestion",
+   "multi-choice":"MultiChoiceQuestion",
+   "composed":"Composed"
+]
+
+typeConversion ::= [
+   "integer":"Integer.parseInt",
+   "boolean":"Boolean.parseBoolean",
+   "text":"String.valueOf",
+   "fraction":"Fraction.parseFraction",
+   default:"String.valueOf"
+]
+
+
+// templates:
+
+module(name, stat) ::= <<
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.function.*;
+import QlangClasses2.*;
+
+public class <name> {
+   public static void main(String[] args) {
+      Scanner scanner = new Scanner(System.in);
+      Result result = new Result();
+
+      <stats(stat)>
+
+      scanner.close();
+   }
+
+   public static String readPrompt(Scanner scanner, String prompt) {
+      System.out.print(prompt);
+      return scanner.nextLine();
+   }
+}
+>>
+
+stats(stat) ::= <<
+<if(stat)><stat; separator=";\n"><endif>
+>>
+
+declaration(type, var) ::= <<
+<typeValue.(type)> <var>
+>>
+
+newExecute(type, id, stat) ::= <<
+BiFunction\<<questionType.(type)>, Scanner, Void\> <id>Execute = (<questionType.(type)> question, Scanner sc) -> {
+   <stats(stat)>
+   return null;
+};
+<id>.setExecute(<id>Execute)
+>>
+
+codeBody(id, stat) ::= <<
+Function \<Code, Void\> <id>Build = (Code code) -\> {
+   <stats(stat)>
+   return null;
+};
+<id>.buildCode(<id>Build)
+
+>>
+
+addComponent(code, component) ::= <% code.addComponent(<component>) %>
+addTextCode(text) ::= <% new Code.StringWrapper(<text>) %>
+addHoleCode(id, hole) ::= <% new Code.Alias("<id>", <hole>) %>
+
+setExecute(question, execute) ::= <<
+   <question>.setExecute(<execute>)
+>>
+
+runQuestion(value, question) ::= <<
+   question.run(Fraction.parseFraction(<value>), <question>, scanner)
+>>
+
+assignBase(var,value) ::= <<
+<var> = <value>
+>>
+
+assignmentNew(var, value) ::= <<
+<var> = <value>.getInstance()
+>>
+
+print(stat, value) ::= <<
+System.out.print(<value; separator=" + ">)
+>>
+
+println(stat,value) ::= <<
+System.out.println(<value; separator=" + ">)
+>>
+
+scanner_next(var) ::= <<
+<var> = sc.next()
+>>
+
+literalBoolean(value) ::= <%<booleanValue.(value)>%>
+
+stringArray(var, text) ::= <%String[] <var> = {<text; separator=",">}%>
+
+NewQuestion(type, var, id) ::= <%
+   <questionType.(type)> <var> = new <questionType.(type)>(result, "<id>")
+%>
+
+AddSolution(id, solution_str) ::= <%
+   <id>.addSolution(<solution_str>)
+%>
+
+CodeAddSolution(id, solution_str) ::= <%
+   <id>.addSolution(new Code(<solution_str>))
+%>
+
+AddHole(matchcount, solution, grade, line, alias, checkAlias) ::=  <%
+   question.addHole<if(checkAlias)>Alias<endif>("<matchcount>", "<alias>"<if(solution)>, <solution><endif>, "<grade>", <line>)
+%>
+
+AddHoleAlias(alias, weight) ::= <%
+   question.addHoleAlias("<alias>", "<weight>")
+%>
+
+AddHoleSane(alias, solution) ::= <%
+   question.addHole("<alias>", <solution>, "1")
+%>
+
+GetInstance(id) ::= <%
+   <id>.getInstance()
+%>
+
+NewManager(id, type, category) ::= <%
+   <if(type)><type><else>Question<endif>Manager <id> = new <if(type)><type><else>Question<endif>Manager(<category>)
+%>
+
+ManagerAddQuestion(type, Manager, question) ::= <%
+   <Manager>.add<if(type)><type><else>Question<endif>(<question>)
+%>
+
+NewCode(id, code) ::= <%
+   Code <if(id)><id><else>code<endif> = <NewCodePartial(code)>
+%>
+
+NewCodePartial(code) ::= <%
+   new Code("<code>")
+%>
+
+NewCodeReady(code) ::= <%
+   code.addComponent(<addTextCode(code)>)
+%>
+
+UseCode(code) ::= <%
+   question.useCode(<code>)
+%>
+
+ParseStuff(type, value) ::= <%
+   <typeConversion.(type)>(<value>)
+%>
+
+executeQuestion(var, question, prompt) ::= <%
+   <if(var)>var = <endif><question>.execute(<if(prompt)><prompt><else>scanner<endif>)
+%>
+
+AddChoice(option, grade) ::= <%
+   question.addChoice(<option><if(grade)>, Fraction.parseFraction("<grade>")<endif>)
+%>
+
+ExportResults() ::= <<
+try (BufferedWriter writer = new BufferedWriter(new FileWriter("result.txt"))) {
+   result.exportToFile(writer);
+} catch (IOException e) {
+   e.printStackTrace(); //erro personalizado?
+}
+>>
+
+
+and(expr1, expr2) ::= <% 
+   (<expr1> && <expr2>)
+%>
+
+or(expr1, expr2) ::= <%
+   (<expr1> || <expr2>)
+%>
+
+xor(expr1, expr2) ::= <%
+   (<expr1> ^ <expr2>)
+%>
+
+implies(expr1, expr2) ::= <%
+   (!<expr1> || <expr2>)
+%>
+
+andthen(expr1, expr2) ::= <%
+   (<expr1> && <expr2>)
+%>
+
+orelse(expr1, expr2) ::= <%
+   (<expr1> || <expr2>)
+%>
+
+StdoutProgram(input) ::= <%
+question.setSolution(question.getCode().execute(new String[] {<input>}))
+%>
+
+
+IfSentence(expr, stat, elseWord) ::= <<
+   if (<expr>) {
+      <stats(stat)>
+   \} <if(elseWord)><elseWord; separator=" "><endif>
+>>
+
+ElseIfSentence(cond, stat, elseWord) ::= <<
+   else if (<cond>) {
+      <stats(stat)>
+   \} <if(elseWord)><elseWord; separator=" "><endif>
+>>
+
+
+ElseSentence(stat) ::= <<
+else {
+   <stats(stat)>
+}
+>>
+
+ReadInput(prompt) ::= <<
+readPrompt(scanner, <if(prompt)><prompt><else>""<endif>)
+>>
+
+

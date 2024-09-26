@@ -1,0 +1,61 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+import QlangClasses.*;
+
+public class QLangJavanized {
+   public static void main(String[] args) {
+      Scanner scanner = new Scanner(System.in);
+      String scannerOutput = "";
+      Result result = new Result();
+
+      String v1;
+      Integer v2;
+      result.name = readPrompt(scanner, "Nome: ");
+      Code c1 = new Code("[
+         -- PIL code from here
+         n := integer(read "Number: "); -- type conversion: type(expression)
+         write "Number ",n, " is ";
+         if n % 2 = 0 then -- = is the comparison operator (as in math)
+            writeln "even"
+         else
+            writeln "odd"
+         end;
+         -- PIL code to here
+      ]");
+      Code v3;
+      v3 = c1;
+      c1.getInstance();
+      String v4;
+      v4 = v3.execute(scanner);
+      v4 = v3.execute(scanner);
+      v3.execute(scanner);
+      QuestionManager q1 = new QuestionManager(Algorithm);
+      CodeHoleQuestion q2 = new CodeHoleQuestion(result, "Algorithm.Code1");
+      q1.addQuestion(q2);
+      q2.addQuestion("Complete o seguinte código.\n");
+      q2.addCode(c1);
+      q2.addSolution("n % 2 = 0");
+      q2.addGrade(10);
+      q2.addCount(1);
+      q2.addLines(1);
+      q2.addSolution("else");
+      q2.addGrade(5);
+      q2.addCount(1);
+      q2.addLines(2);
+      q2.execute(scanner);
+      try (BufferedWriter writer = new BufferedWriter(new Filewriter("result.txt"))) {
+         result.exportToFile(writer);
+      } catch (IOException e) {
+         e.printStackTrace(); //erro personalizado?
+      }
+
+      scanner.close();
+   }
+
+   public static String readPrompt(Scanner scanner, String prompt) {
+      System.out.print(prompt);
+      return scanner.nextLine();
+   }
+}
