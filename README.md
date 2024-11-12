@@ -1,5 +1,3 @@
-Nota: 14
-
 # Tema **QLang**, grupo **qlang-q06**
 -----
 
@@ -88,3 +86,7 @@ Não conseguimos juntar tudo num ficheiro .jar apesar de termos tentado durante 
 -README.md: Hugo
 
 -REPORT.md: Hugo
+
+
+### Nota
+14
